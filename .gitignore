@@ -6,10 +6,15 @@ venv/
 
 # Vercel
 .vercel/
+.env
+.env.*
+!.env.example
 
 # Private/raw data — never push to GitHub
 /data/private_raw/
 /data/private_full.sqlite3
+/data/*.sqlite3
+/data/*.db
 /data/admin_codes.txt
 /data/*.json
 

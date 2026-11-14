@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from app.db import init_db, connect
+from app.db import init_db, connect, using_turso
 from app.analytics import upsert_map_caches
 
 DB = ROOT / "data" / "inazuma.sqlite3"
@@ -102,6 +102,10 @@ def _cache_needs_rebuild(con, map_id):
 
 
 def main():
+    if using_turso():
+        print("Turso Cloud is active: no SQLite compaction or database file commit is needed.")
+        print("Match data is already stored in the remote Turso database.")
+        return
     init_db(reset=False)
     full_con = None
     if FULL.exists():

@@ -13,13 +13,20 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .config import ROOT, PROJECT_NAME, TEAM_NAME
-from .db import connect
+from .db import connect, using_turso
 from .analytics import cached_insights, cached_leaderboard
 from .admin_import import import_official_map
 
 app = FastAPI(title=PROJECT_NAME)
 app.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")
 templates = Jinja2Templates(directory=ROOT / "app" / "templates")
+
+
+@app.get("/health", include_in_schema=False)
+def health():
+    with connect() as con:
+        con.execute("SELECT 1").fetchone()
+    return {"status": "ok", "database": "turso" if using_turso() else "sqlite"}
 
 
 @app.middleware("http")
@@ -527,7 +534,7 @@ def admin_page(request: Request, ok: str | None = None, next: str | None = None)
         counts={"maps":con.execute("SELECT COUNT(*) c FROM maps").fetchone()["c"],"series":con.execute("SELECT COUNT(*) c FROM series WHERE is_bye=0").fetchone()["c"],"players":con.execute("SELECT COUNT(*) c FROM players").fetchone()["c"]}
     return templates.TemplateResponse(request,"admin.html",{
         "recent_series":recent_series,"counts":counts,"message":ok,
-        "admin_view":True,"vercel_readonly":bool(os.environ.get("VERCEL"))
+        "admin_view":True,"vercel_readonly":bool(os.environ.get("VERCEL")),"turso_mode":using_turso()
     })
 
 
@@ -567,7 +574,7 @@ async def admin_import_map(request: Request,
     if guard:
         return guard
     if os.environ.get("VERCEL"):
-        raise HTTPException(403, "Hosted admin is read-only. Import locally, then prepare and redeploy the compact database.")
+        raise HTTPException(403, "Hosted admin is read-only. Run the local dashboard with TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in .env to write directly to the shared Turso database.")
     raw=json_text.strip()
     if json_file and json_file.filename:
         raw=(await json_file.read()).decode("utf-8",errors="replace").strip()
@@ -586,5 +593,5 @@ async def admin_import_map(request: Request,
         counts={"maps":con.execute("SELECT COUNT(*) c FROM maps").fetchone()["c"],"series":con.execute("SELECT COUNT(*) c FROM series WHERE is_bye=0").fetchone()["c"],"players":con.execute("SELECT COUNT(*) c FROM players").fetchone()["c"]}
     return templates.TemplateResponse(request,"admin.html",{
         "recent_series":recent_series,"counts":counts,"message":message,"error":error,
-        "admin_view":True,"vercel_readonly":False
+        "admin_view":True,"vercel_readonly":False,"turso_mode":using_turso()
     })

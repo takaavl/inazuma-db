@@ -4,23 +4,26 @@ The public dashboard does not show Admin or Data Health.
 
 ## Local
 
-On the first `START_WINDOWS.bat` launch, the script asks you to choose an admin code and stores it in:
+On the first `START_WINDOWS.bat` launch, choose an admin code. It is stored in `data/admin_codes.txt`, which is ignored by Git.
 
-`data/admin_codes.txt`
+Then open `http://127.0.0.1:8000/admin/`.
 
-That file is ignored by Git. One code per line is supported if you want multiple admin codes.
+## Local admin connected to Turso Cloud
 
-Then open:
+Copy `.env.example` to `.env` and fill in:
 
-`http://127.0.0.1:8000/admin/`
+- `TURSO_DATABASE_URL`
+- `TURSO_AUTH_TOKEN`
+
+With those variables present, the local dashboard reads and writes the persistent Inazuma Turso database. This is the recommended way to import matches and manage production data.
 
 ## Vercel
 
-In Vercel → Project → Settings → Environment Variables, add:
+In Vercel → Project → Settings → Environment Variables, configure:
 
-- `ADMIN_CODE` = your admin code
-- optional `ADMIN_COOKIE_SECRET` = a long random string
+- `TURSO_DATABASE_URL`
+- `TURSO_AUTH_TOKEN`
+- `ADMIN_CODE`
+- `ADMIN_COOKIE_SECRET` (long random string)
 
-Redeploy after saving the variables.
-
-The hosted admin is read-only because the bundled SQLite filesystem is not a durable write store. Add matches locally, run `PREPARE_DEPLOY_WINDOWS.bat`, commit, and push.
+Redeploy after saving the variables. The hosted admin stays read-only; use the local dashboard connected to Turso for data changes.

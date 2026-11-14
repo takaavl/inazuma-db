@@ -8,7 +8,7 @@
   <div class="admin-grid">
     <section class="admin-card">
       <h2>Add official map</h2>
-      {% if vercel_readonly %}<div class="admin-readonly"><b>Read-only on Vercel.</b> Import new matches locally, then run the deploy preparation script and push the updated compact database.</div>{% endif %}
+      {% if vercel_readonly %}<div class="admin-readonly"><b>Read-only on Vercel.</b> Run the local dashboard with Turso credentials in <code>.env</code> to import matches. They will be saved to the shared cloud database.</div>{% endif %}
       <form class="admin-form" method="post" action="/admin/import" enctype="multipart/form-data" {% if vercel_readonly %}inert{% endif %}>
         <label>Existing series (optional)
           <select name="existing_series_id">
@@ -47,7 +47,7 @@
     </section>
     <aside class="admin-card">
       <h2>Workflow</h2>
-      <p class="admin-note">1. Import the Tracker JSON here locally.<br>2. Check the match, player and map pages.<br>3. Commit <code>data/inazuma.sqlite3</code> to GitHub.<br>4. Vercel redeploys automatically from the new commit.</p>
+      <p class="admin-note">{% if turso_mode %}Connected to Turso Cloud: imports made here are saved to the shared production database and appear on the hosted dashboard. No GitHub push is needed for data-only changes.{% else %}Local SQLite mode: imports stay on this PC. To update the production dashboard, configure <code>TURSO_DATABASE_URL</code> and <code>TURSO_AUTH_TOKEN</code> in a private <code>.env</code> file first.{% endif %}</p>
       <p class="admin-note"><b>Important:</b> raw JSON files are archived in <code>data/private_raw/</code> and ignored by Git. The public database only keeps the compact data needed by the site.</p>
       <h2 style="margin-top:24px">Current database</h2>
       <p class="admin-note"><b>{{ counts.maps }}</b> maps · <b>{{ counts.series }}</b> series · <b>{{ counts.players }}</b> players</p>
