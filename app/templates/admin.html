@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Admin · INAZUMA{% endblock %}
+{% block content %}
+<div class="admin-shell">
+  <div class="page-head"><div><span class="eyebrow">BACK OFFICE</span><h1>Admin</h1><p class="muted">Manage official data and integrity checks.</p></div><div class="admin-head-actions"><a class="admin-secondary-btn" href="/data-health">Data health</a><form method="post" action="/admin/logout"><button class="admin-secondary-btn" type="submit">Logout</button></form></div></div>
+  {% if message %}<div class="admin-card admin-ok" style="margin-bottom:16px"><b>{{ message }}</b></div>{% endif %}
+  {% if error %}<div class="admin-card admin-error" style="margin-bottom:16px"><b>{{ error }}</b></div>{% endif %}
+  <div class="admin-grid">
+    <section class="admin-card">
+      <h2>Add official map</h2>
+      {% if vercel_readonly %}<div class="admin-readonly"><b>Read-only on Vercel.</b> Import new matches locally, then run the deploy preparation script and push the updated compact database.</div>{% endif %}
+      <form class="admin-form" method="post" action="/admin/import" enctype="multipart/form-data" {% if vercel_readonly %}inert{% endif %}>
+        <label>Existing series (optional)
+          <select name="existing_series_id">
+            <option value="">Create a new series</option>
+            {% for s in recent_series %}<option value="{{ s.id }}">#{{ s.id }} · {{ s.opponent }} · {{ s.event_name }}{% if s.stage %} · {{ s.stage }}{% endif %}</option>{% endfor %}
+          </select>
+        </label>
+        <div class="admin-grid">
+          <label>Event <input name="event_name" placeholder="RBCorp Tournament #4"></label>
+          <label>Competition <input name="competition" placeholder="Tournament circuit / organizer"></label>
+        </div>
+        <label>Tournament tier
+          <select name="event_tier"><option value="S">S · Elite</option><option value="A">A · High Competitive</option><option value="B">B · Competitive</option><option value="C" selected>C · Community</option></select>
+        </label>
+        <div class="admin-grid">
+          <label>Stage <input name="stage" placeholder="Group Stage / Playoffs"></label>
+          <label>Opponent <input name="opponent" placeholder="Opponent name"></label>
+        </div>
+        <div class="admin-grid">
+          <label>Best of
+            <select name="best_of"><option value="1">BO1</option><option value="3">BO3</option><option value="5">BO5</option></select>
+          </label>
+          <label>Map index <input type="number" min="1" max="5" name="map_index" placeholder="Auto"></label>
+        </div>
+        <label>Series code (new series only) <input name="series_code" placeholder="event-vs-opponent"></label>
+        <label class="admin-checkbox"><input type="checkbox" name="career_highlight" value="true"> Add this series to Career Highlights</label>
+        <label>Highlight note (optional) <input name="highlight_note" placeholder="VCT Open · standout performance / key moment"></label>
+        <label>Our side (only if auto-detection fails)
+          <select name="explicit_team_id"><option value="">Auto detect</option><option value="Red">Red</option><option value="Blue">Blue</option></select>
+        </label>
+        <label>Account overrides (optional)<textarea name="overrides_text" style="min-height:90px" placeholder="PlayerAlias#TAG=CanonicalPlayer"></textarea></label>
+        <label>Tracker JSON file <input type="file" name="json_file" accept=".json,.txt,application/json,text/plain"></label>
+        <label>…or paste JSON<textarea name="json_text" placeholder='{"data": {...}}'></textarea></label>
+        <div class="admin-actions"><button class="admin-btn" type="submit" {% if vercel_readonly %}disabled{% endif %}>Import map</button></div>
+      </form>
+    </section>
+    <aside class="admin-card">
+      <h2>Workflow</h2>
+      <p class="admin-note">1. Import the Tracker JSON here locally.<br>2. Check the match, player and map pages.<br>3. Commit <code>data/inazuma.sqlite3</code> to GitHub.<br>4. Vercel redeploys automatically from the new commit.</p>
+      <p class="admin-note"><b>Important:</b> raw JSON files are archived in <code>data/private_raw/</code> and ignored by Git. The public database only keeps the compact data needed by the site.</p>
+      <h2 style="margin-top:24px">Current database</h2>
+      <p class="admin-note"><b>{{ counts.maps }}</b> maps · <b>{{ counts.series }}</b> series · <b>{{ counts.players }}</b> players</p>
+    </aside>
+  </div>
+</div>
+{% endblock %}

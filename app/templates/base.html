@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>{% block title %}INAZUMA{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="topbar">
+  <button class="burger" type="button" aria-label="Open menu" aria-expanded="false" onclick="toggleNav()"><span></span><span></span><span></span></button>
+  <a class="top-brand" href="/"><span class="brand-mark">I</span><span><b>INAZUMA</b><small>COMPETITIVE PERFORMANCE</small></span></a>
+  <div class="topbar-spacer"></div>
+  {% if admin_view %}<a class="admin-top-link" href="/admin/">Admin</a>{% endif %}
+</div>
+<div id="navBackdrop" class="nav-backdrop" onclick="closeNav()"></div>
+<aside id="navDrawer" class="nav-drawer">
+  <div class="drawer-head"><div><span class="eyebrow">NAVIGATION</span><h2>INAZUMA</h2></div><button class="drawer-close" onclick="closeNav()">×</button></div>
+  <nav>
+    <a href="/" class="{% if request.url.path=='/' %}active{% endif %}"><span>01</span>Overview</a>
+    <a href="/matches" class="{% if request.url.path.startswith('/matches') %}active{% endif %}"><span>02</span>Matches</a>
+    <a href="/players" class="{% if request.url.path.startswith('/players') %}active{% endif %}"><span>03</span>Players</a>
+    <a href="/maps" class="{% if request.url.path.startswith('/maps') %}active{% endif %}"><span>04</span>Maps</a>
+    <a href="/compositions" class="{% if request.url.path.startswith('/compositions') %}active{% endif %}"><span>05</span>Compositions</a>
+    <a href="/events" class="{% if request.url.path.startswith('/events') %}active{% endif %}"><span>06</span>Events</a>
+    <a href="/history" class="{% if request.url.path.startswith('/history') %}active{% endif %}"><span>07</span>History</a>
+    <a href="/highlights" class="{% if request.url.path.startswith('/highlights') %}active{% endif %}"><span>08</span>Career Highlights</a>
+  </nav>
+  {% if admin_view %}
+  <div class="drawer-admin-block">
+    <a class="drawer-health" href="/admin/">Admin dashboard <span>→</span></a>
+    <a class="drawer-health" href="/data-health">Data health <span>→</span></a>
+  </div>
+  {% endif %}
+</aside>
+<main class="content">{% block content %}{% endblock %}</main>
+<script>
+function toggleNav(){const d=document.getElementById('navDrawer'),b=document.getElementById('navBackdrop'),btn=document.querySelector('.burger');const open=!d.classList.contains('open');d.classList.toggle('open',open);b.classList.toggle('open',open);btn.setAttribute('aria-expanded',String(open));document.body.classList.toggle('nav-open',open)}
+function closeNav(){document.getElementById('navDrawer').classList.remove('open');document.getElementById('navBackdrop').classList.remove('open');document.querySelector('.burger').setAttribute('aria-expanded','false');document.body.classList.remove('nav-open')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav()});
+window.addEventListener('resize',()=>{if(window.innerWidth>1100)closeNav()});
+</script>
+</body>
+</html>

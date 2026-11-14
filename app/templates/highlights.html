@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Career Highlights · INAZUMA{% endblock %}
+{% block content %}
+<header class="page-head"><div><span class="eyebrow">CAREER ARCHIVE</span><h1>Career Highlights</h1><p>Selected matches and tournament moments worth keeping in the record.</p></div></header>
+{% if highlights %}
+<div class="event-timeline">{% for s in highlights %}<a class="event-list-card" href="/matches/{{s.id}}"><div class="event-date-rail"><span>{{s.played_at[:4] if s.played_at else '—'}}</span><i></i></div><div class="event-list-main"><div class="event-list-top"><span class="eyebrow">{{s.event_name}}</span><span class="tier-badge tier-{{s.event_tier|lower}}">TIER {{s.event_tier}}</span></div><h2>{{s.opponent}}</h2><div class="event-meta-row"><div><small>Result</small><b>{{s.result}} · {{s.maps_won}}–{{s.maps_lost}}</b></div><div><small>Maps</small><b>{{s.map_count}}</b></div><div><small>Stage</small><b>{{s.stage or 'Match'}}</b></div></div>{% if s.highlight_note %}<p>{{s.highlight_note}}</p>{% endif %}</div></a>{% endfor %}</div>
+{% else %}
+<section class="panel empty-state"><span class="eyebrow">NOTHING PINNED YET</span><h2>The archive starts here.</h2><p>We'll add the VCT Open matches, standout scoreboards, opponents and map results here as soon as the new dataset is ready.</p></section>
+{% endif %}
+{% endblock %}
